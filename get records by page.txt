@@ -1,0 +1,77 @@
+data = {"dermwise@gmail.com","ek3249@cumc.columbia.edu","ellengendlermd@gmail.com","kward2@umc.edu","drnrohatgi@gmail.com","katherineberry061@gmail.com","alexmariecooper@gmail.com","lindsayenns@gmail.com","jdavidig@aol.com","greta.corey@allina.com","jennifer.tinkler@sanfordhealth.org","ajlaska@gmail.com","jessyca2212@yahoo.com","theresadevere@gmail.com","helene.erickson@ochsner.org","Descansoderm@msn.com","bgdiamond@comcast.net","carolyn.litty.ellis@gmail.com","tarabronsnick@gmail.com","briantoymd@gmail.com","Dricohen@aol.com","emilyhedleypa@yahoo.com","sarahaminka@gmail.com","brandietackett@gmail.com","pkandsunny@aol.com","mecadmus@aol.com","joannypaul@gmail.com","jbm@sheismoney.com","aepezzi@gmail.com","asutton@docsdermgroup.com","lrpderm@gmail.com","ccwalsh@mac.com","carmen@nydg.com","jrestivo620@gmail.com","ilana.itenberg@gmail.com","h2dermatology@gmail.com","aliciaogram@gmail.com","shanthi.narla1@gmail.com","cschweid826@gmail.com","nadia.sundlass@forefrontderm.com","niti.amin@adcsclinics.com","kwiatkowskiveronica@gmail.com","KOSMACHS@njhealth.org","peggylin23@yahoo.com","dianeorlinsky@gmail.com","doctoroliviachoi@gmail.com","asmaahmed7@yahoo.com","liscabrera@yahoo.com","mccaufield@coloradodermatology.com","jocelyn.c.thein@kp.org","katherine.kenneweg@gmail.com","jessica.gjede@gmail.com","kshao@daytonskincare.com","jennifer.b.mclaughlin@gmail.com","carolinpenrose@gmail.com","saxtondaniels@gmail.com","ltclifton13@gmail.com","md@acheloncompany.com","hannahsong90@gmail.com","jwhatl1@gmail.com","mporter3@bidmc.harvard.edu","sophiasandhu@gmail.com","seems78@gmail.com","adam.nabatian@gmail.com","mmbatta@gmail.com","drbhearn@gmail.com","NANCY.HABIB@kp.org","pkathrotiya@gmail.com","hennapearls@yahoo.com","reyhamidi@yahoo.com","monicahuynh.derm@gmail.com","barbdubner@gmail.com","amykfreeman@gmail.com","tola.oyesanya@gmail.com","tony.nuara@gmail.com","reeder.virginia@gmail.com","dryasimd@gmail.com","nataliejsteinhoff@gmail.com","iderosa326@gmail.com","stacy.blum@yoonderm.com","laurenimanhenderson@gmail.com","stephaniepchan@gmail.com","drwestmori@gmail.com","cantia1211@gmail.com","Sangeeta.Marwaha@kp.org","miriamrlieberman@gmail.com","ashleycparks@gmail.com","Michelle.Tarbox@ttuhsc.edu","amtremaine@skinwellfl.com","slewellis@gmail.com","angelajiangmd@gmail.com","drdavis@uptowndermatology.com","amykalowitz@gmail.com","drgalliani@stpetederm.com","drgreenfield3@gmail.com","rubykaurmd@gmail.com","juliaschwartzmd@gmail.com","ps.md.mba@gmail.com","Joseph.Aleshaki@sharp.com","annasarnoryan@gmail.com","nadine.shabeeb@gmail.com","bjanssen@carolinaasthma.com","apickert2@gmail.com","Stephanie.Gan@duly.com","lauragray1248@gmail.com","MA@mtskyderm.com","oliviamchen.md@gmail.com"};
+// for each  d in data
+// {
+// 	// 	info d;
+// 	response = zoho.crm.searchRecords("Contacts","(Email:equals:" + d + ")");
+// 	for each  res in response
+// 	{
+// 		info res.get("Email_Address") + " Found";
+// 	}
+// }
+page = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48};
+// page = {1};
+data = 200;
+// page = {1};
+//contact name is not empty
+// update cus is selected
+// order type = "Professional Sample US"
+// have to find product purchase product list and number of purchase also have to compare salesorder final 
+// amount to Orders Total Amount field 
+
+// for each  p in page
+// {
+// 	SalesOrder = zoho.crm.getRecords("Sales_Orders",p,data);
+// 	for each  SOrder in SalesOrder
+// 	{
+// 		if(SOrder.get("Contact_Name") != null && SOrder.get("Order_Type") == "Professional Sample US" && SOrder.get("Update_Cust") == true)
+// 		{
+// 			info SOrder.get("Contact_Name").get("id");
+// 		}
+// 	}
+// }
+
+return "Success";
+// // 	info p;
+// 	// 	info data;
+// 	prof = zoho.crm.getRecords("Accounts",p,data);
+// 	for each  professional in prof
+// 	{
+// 		if(professional.get("Email_Address") != null)
+// 		{
+// 			// 		info professional;
+// 			// 	info professional.get("Email_Address");
+// 			id = professional.get("id");
+// 			rec = zoho.crm.getRecordById("Accounts",id);
+// 			//---------------------Product distribution-------------------//
+// 			/*
+// 	pdistribution = rec.get("Products_Distribution");
+// 	numpurcahse = 0;
+// 	for each pdis in pdistribution
+//     {
+// 		numcount = pdis.get("Number_of_Purchases");
+// 		numpurcahse = numpurcahse+1;
+//     }
+// 	info numpurcahse;
+// 	*/
+// 			//-----------------End of code ------------------------//
+// 			////--------Round of Samples-----------/////
+// 			round = rec.get("Rounds_of_Samples");
+// 			quantity = 0;
+// 			for each  sample in round
+// 			{
+// 				soId = sample.get("Order_Number").get("id");
+// 				// 		info soId;
+// 				SO = zoho.crm.getRecordById("Sales_Orders",soId);
+// 				// 		info SO;
+// 				orderedItem = SO.get("Product_Details");
+// 				// 		info orderedItem;
+// 				for each  order in orderedItem
+// 				{
+// 					quant = order.get("quantity");
+// 					quantity = quantity + quant;
+// 				}
+// 			}
+// 			info quantity;
+// 			/////////////////
+// 		}
+// 	}
