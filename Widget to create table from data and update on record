@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <script src="https://live.zwidgets.com/js-sdk/1.0.5/ZohoEmbededAppSDK.min.js"></script>
+
+  <title>Zoho Widget HTML Table</title>
+  <!-- Example script to populate the table -->
+  <script>
+    //variables
+    var rec_id = "";
+    var contacts = [];
+    var note_s = "";
+    var contact_s = "";
+    // var notes = "";
+    // var status = "";
+    var TicketId = [];
+    // Add more data as needed];
+    //Date_of_Activity
+    //Activity_Booking_Ref
+    //Name
+    //Activity
+    //CRM_Notes	
+    //Status
+    
+    ZOHO.embeddedApp.on("PageLoad", function (data) {
+      ZOHO.CRM.UI.Resize({height:"700",width:"1100"})
+      //console.log("data=====>",data.EntityId[0]);
+      rec_id = data.EntityId[0]
+      ZOHO.CRM.API.getRelatedRecords({ Entity: "Contacts", RecordID: rec_id, RelatedList: "Related_Contact1", page: 1, per_page: 200 }).then(function (listOfRecords) {
+
+        console.log("function call");
+        console.log("data2=====>", listOfRecords.data);
+        console.log(listOfRecords.data.length);
+        for (let index = 0; index < listOfRecords.data.length; index++) {
+          console.log("data3=====>", listOfRecords.data[index]);
+          console.log("qty=====>", listOfRecords.data[index].Qty);
+          TicketId.push(listOfRecords.data[index].id);
+          console.log(TicketId);
+          for (let innerIndex = 0; innerIndex < listOfRecords.data[index].Qty; innerIndex++) {
+            console.log("qty1=====>", innerIndex);
+            contacts.push({ date: listOfRecords.data[index].Date_of_Activity, bookingRef: listOfRecords.data[index].Activity_Booking_Ref, name: listOfRecords.data[index].Name, activity: listOfRecords.data[index].Activity, note: listOfRecords.data[index].CRM_Notes, status: listOfRecords.data[index].Status, Id: listOfRecords.data[index].id });
+          }
+        }
+        console.log("final Data", contacts);
+        populateTable();
+      });
+    });
+    ZOHO.embeddedApp.init();
+    function populateTable() {
+      var tableBody = document.getElementById("tableBody");
+      tableBody.innerHTML = ""; // Clear previous data
+      console.log(contacts);
+      console.log(contacts.length);
+      contacts.forEach(function (contacts) {
+        if (contacts.note == null) {
+          note_s = "";
+        }
+        else {
+          note_s = contacts.note;
+        }
+        if (contacts.status == null) {
+          contact_s = "";
+        }
+        else {
+          contact_s = contacts.status;
+        }
+        var row = "<tr>";
+        row += "<td><input type='text' value='" + contacts.date + "' disabled></td>";
+        row += "<td><input type='text' value='" + contacts.bookingRef + "' disabled></td>";
+        row += "<td><input type='text' value='" + contacts.activity + "' disabled></td>";
+        row += "<td><input type='text' value='" + contacts.name + "' disabled></td>";
+        row += "<td><input type='text' value=' Participant name ' disabled></td>";
+        row += "<td><input type = 'text' value ='<select id='option' name='Book Class'><option value='option1'>Active</option><option value='option2'>Expired</option><option value='option2'>None</option></select>'</td>";
+        row += "<td><select id='option' name='Book Class'><option value='option1'>Adult</option><option value='option2'>Minor</option></select></td>";
+        row += "<td><input type='text' value='" + note_s + "' id='notes' ></td>";
+        row += "<td><input type='text' value='" + contact_s + "' id ='status' ></td>";
+        row += "<td><input type='hidden' value='" + contacts.Id + "' id ='Id' ></td>";
+        row += "</tr>";
+        tableBody.innerHTML += row;
+      });
+
+    }
+    window.onload = populateTable;
+
+    //update records
+    function Save() {
+      var notes =[];
+      var status =[];
+      var Id = [];
+      const input1 = document.querySelectorAll('#status');
+      const input2 = document.querySelectorAll('#Id');
+      const inputs = document.querySelectorAll('#notes')
+      inputs.forEach((input, index) => {
+        console.log(input.value);
+        notes.push(input.value);
+      })
+      input1.forEach((input, index) => {
+        console.log(input.value);
+        status.push(input.value);
+      })
+      input2.forEach((input, index) => {
+        console.log(input.value);
+        Id.push(input.value);
+      })
+
+      for (var i=0;i<notes.length;i++)
+      {
+        ZOHO.CRM.API.updateRecord({
+        Entity: "Tickets", APIData: { id: Id[i], CRM_Notes: notes[i], Status: status[i] },
+      }).then(function (successResponse) {
+        console.log("sucess fully updated");
+        ZOHO.CRM.UI.Popup.close()
+      }, function (errorResponse) {
+        console.log("error");
+      });
+      
+    }
+      
+    }
+
+    function Close() {
+      ZOHO.CRM.UI.Popup.close()
+    }
+
+  </script>
+</head>
+
+<body style="font-size: 10px;"> 
+  <!-- <div class="flex_div" style="display: flex; flex-wrap: wrap; gap: 5px;"> -->
+  <div style="font-size: 14px;padding: 5px;">
+    <!-- <h1>Tickets Details</h1> -->
+    <hr>
+    <table class="table" style="font-size: small;">
+      <thead class="thead-dark">
+        <tr>
+          <th>Date</th>
+          <th>Booking Ref</th>
+          <th>Activity Name</th>
+          <th>Purchaser</th>
+          <th>Participant Name</th>
+          <th>Waiver</th>
+          <th>Book Class</th>
+          <th>Notes</th>
+          <th>Status</th>
+          <!-- Add more columns as needed -->
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <!-- Data will be dynamically added here -->
+      </tbody>
+    </table>
+  </div>
+  <div style="padding: 10px; position:fixed;margin: auto;">
+    <button onclick="Save()" type="button" class="btn btn-success">Save</button>
+    <button onclick="Close()" type="button" class="btn btn-danger">Cancel</button>
+  </div>
+</body>
+
+</html>
