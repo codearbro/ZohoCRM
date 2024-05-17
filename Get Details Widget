@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <script src="https://live.zwidgets.com/js-sdk/1.0.5/ZohoEmbededAppSDK.min.js"></script>
+  <title>Get Details</title>
+  <!-- Example script to populate the table -->
+  <script>
+    //variables
+    var rec_id = "";
+    var contacts = [];
+    var note_s = "";
+    var contact_s = "";
+    var TicketId = [];
+    ZOHO.embeddedApp.on("PageLoad", function (data) {
+      ZOHO.CRM.UI.Resize({ height: "700", width: "1600" })
+      //console.log("data=====>",data.EntityId[0]);
+      rec_id = data.EntityId[0]
+      ZOHO.CRM.API.getRelatedRecords({ Entity: "Contacts", RecordID: rec_id, RelatedList: "Related_List_Label_2", page: 1, per_page: 200 }).then(function (listOfRecords) {
+        // console.log(listOfRecords)
+        
+          console.log("function call");
+          console.log("data2=====>", listOfRecords.data);
+          console.log(listOfRecords.data.length);
+
+          for (let index = 0; index < listOfRecords.data.length; index++) {
+            console.log("data3=====>", listOfRecords.data[index]);
+            console.log("qty=====>", listOfRecords.data[index].id);
+            contacts.push({ Created_Time: listOfRecords.data[index].Created_Time, Name: listOfRecords.data[index].Name, Ticket: listOfRecords.data[index].Ticket, Check_In_Notes: listOfRecords.data[index].Check_In_Notes, Participant_Name: listOfRecords.data[index].Participant_Name, Purchaser: listOfRecords.data[index].Purchaser, Status: listOfRecords.data[index].Status, weaver_Status: listOfRecords.data[index].Waver_status, Book_Class: listOfRecords.data[index].Book_Class });
+            console.log("pushed data", contacts)
+          }
+          console.log("final Data", contacts);
+          populateTable();
+        
+      });
+    });
+    ZOHO.embeddedApp.init();
+    function populateTable() {
+      var tableBody = document.getElementById("tableBody");
+      tableBody.innerHTML = ""; // Clear previous data
+      console.log(contacts);
+      console.log(contacts.length);
+      contacts.forEach(function (contacts) {
+        var date = new Date(contacts.Created_Time);
+        console.log(date);
+        var formattedDate = date.toISOString().split('T')[0];
+        console.log(formattedDate);
+        var row = "<tr>";
+        row += "<td><input type='text' value='" + formattedDate + "' id='booking_date' disabled></td>";
+        row += "<td><input type='text' value='" + formattedDate + "' id='activity_date' disabled></td>";
+        row += "<td><input type='text' value='" + contacts.Name + "' id='activity_name' disabled></td>";
+        row += "<td><input type='text'  value='" + contacts.Participant_Name.name + "'   id='participant_name' disabled></td>";
+        row += "<td><input type='text' value='" + contacts.Name + "' id='Seller' Disabled></td>";
+        row += "<td><input type='text' value='" + contacts.Name + "' id='Qty' Disabled></td>";
+        row += "<td><input type='text' value='" + contacts.Name + "' id='Amount_paid' Disabled></td>";
+        row += "<td><input type='text' value='" + contacts.Name + "' id='Last_4' Disabled></td>";
+        row += "<td><input type='text'  value='" + contacts.weaver_Status + "' id='weaver_status'disabled></td>";
+        row += "<td><input type='text' value='" + contacts.Book_Class + "' id='Book_Class' disabled></td>";
+        row += "<td><input type='text' value='" + contacts.Check_In_Notes + "' id='Notes' disabled></td>";
+        row += "<td><input type='text' value='" + contacts.Status + "' id ='statusId' disabled></td>";
+        // row += "<td><input type='hidden' value='" + contacts.Name + "' id ='conId' disabled></td>";
+        // row += "<td><input type='hidden' value='" + contacts.Name + "' id='contName' disabled ></td>";
+        row += "</tr>";
+        tableBody.innerHTML += row;
+      });
+    }
+    window.onload = populateTable;
+
+
+  </script>
+</head>
+
+<body style="font-size: 10px;">
+  <!-- <div class="flex_div" style="display: flex; flex-wrap: wrap; gap: 5px;"> -->
+  <div style="font-size: 14px;padding: 5px;">
+    <div id="records-container"></div>
+    <!-- <h1>Tickets Details</h1> -->
+    <hr>
+    <table class="table" style="font-size: small;">
+      <thead class="thead-dark">
+        <tr>
+          <th>Booking Date</th>
+          <th>Activity Date</th>
+          <th>Activity Name</th>
+          <!-- <th>Purchaser</th> -->
+          <th>Participant Name</th>
+          <th>Seller</th>
+          <th>QTY</th>
+          <th>Amount Paid</th>
+          <th>Last 4</th>
+          <th>Waiver</th>
+          <th>Book Class</th>
+          <th>Notes</th>
+          <th>Status</th>
+          <!-- Add more columns as needed -->
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <!-- Data will be dynamically added here -->
+      </tbody>
+    </table>
+  </div>
+  <div style="padding: 10px; position:fixed;margin: auto;">
+    <!-- <button onclick="Save()" type="button" class="btn btn-success">Save</button> -->
+    <button onclick="Close()" type="button" class="btn btn-danger">Cancel</button>
+  </div>
+</body>
+
+</html>
