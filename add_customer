@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <script src="https://live.zwidgets.com/js-sdk/1.0.5/ZohoEmbededAppSDK.min.js"></script>
+  <script src="https://live.zwidgets.com/js-sdk/1.2/ZohoEmbededAppSDK.min.js"></script>
+  <title>Zoho Widget HTML Table</title>
+  <!-- Example script to populate the table -->
+  <script>
+    //variables
+    var rec_id = "";
+    var contacts = [];
+    var contacts1 = [];
+    var note_s = "";
+    var contact_s = "";
+    var TicketId = [];
+    var ticketRelId = [];
+    var checkInId = [];
+    var Rel_list_Count;
+    // var rel_record ;
+    ZOHO.embeddedApp.on("PageLoad", function (data) {
+      ZOHO.CRM.UI.Resize({ height: "700", width: "1600" })
+      //console.log("data=====>",data.EntityId[0]);
+      rec_id = data.EntityId[0]
+      ZOHO.CRM.API.getRelatedRecords({ Entity: "Contacts", RecordID: rec_id, RelatedList: "Related_List_Label_2", page: 1, per_page: 200 }).then(function (listOfRecords) {
+        console.log("list records", listOfRecords)
+        rel_record = listOfRecords;
+        console.log(rec_id);
+        console.log("condition check")
+        console.log("outside function", rec_id);
+        if (rel_record.status != 204) {
+          document.getElementById("savebtn").style.display = 'none';
+          console.log("preloaded Data");
+          // ZOHO.embeddedApp.on("PageLoad", function (data) {
+          // ZOHO.CRM.UI.Resize({ height: "700", width: "1600" })
+          //console.log("data=====>",data.EntityId[0]);
+          // rec_id = data.EntityId[0]
+          ZOHO.CRM.API.getRelatedRecords({ Entity: "Contacts", RecordID: rec_id, RelatedList: "Related_List_Label_2", page: 1, per_page: 200 }).then(function (listOfRecords) {
+            // console.log(listOfRecords)
+
+            console.log("function call");
+            console.log("data2=====>", listOfRecords.data);
+            console.log(listOfRecords.data.length);
+            Rel_list_Count = listOfRecords.data.length
+            console.log("related list records", Rel_list_Count);
+            for (let index = 0; index < listOfRecords.data.length; index++) {
+              console.log("data3=====>", listOfRecords.data[index]);
+              console.log("qty=====>", listOfRecords.data[index].id);
+              ticketRelId.push(listOfRecords.data[index].Ticket.id);
+              checkInId.push(listOfRecords.data[index].id);
+              console.log(checkInId);
+
+
+              contacts.push({
+                Id: listOfRecords.data[index].id,
+                Created_Time: listOfRecords.data[index].Created_Time,
+                Name: listOfRecords.data[index].Name,
+                Ticket: listOfRecords.data[index].Ticket,
+                Check_In_Notes: listOfRecords.data[index].Check_In_Notes,
+                Participant_Name: listOfRecords.data[index].Participant_Name,
+                Purchaser: listOfRecords.data[index].Purchaser,
+                Status: listOfRecords.data[index].Status,
+                weaver_Status: listOfRecords.data[index].Waver_status,
+                activity_name: listOfRecords.data[index].Activity_Name,
+                Seller: listOfRecords.data[index].Seller,
+                Amount_Paid: listOfRecords.data[index].Amount_Paid,
+                Date_of_Bookings: listOfRecords.data[index].Booking_Date,
+                Date_of_Activity: listOfRecords.data[index].Activity_Date,
+                Qty: listOfRecords.data[index].QTY,
+                Book_Class: listOfRecords.data[index].Book_Class,
+                Last_4: listOfRecords.data[index].Last_4,
+              });
+              console.log("pushed data", contacts)
+            }
+            console.log("Ticket Id rel", ticketRelId);
+            console.log("final Data", contacts);
+            populateTable();
+
+          });
+          // });
+          // ZOHO.embeddedApp.init();
+          function populateTable() {
+            var tableBody = document.getElementById("tableBody");
+            tableBody.innerHTML = ""; // Clear previous data
+            console.log(contacts);
+            console.log(contacts.length);
+            contacts.forEach(function (contacts, index) {
+              console.log("Contact_Attach", contacts.fileAttachments);
+              // var attachFile = [];
+              ///////////////////
+              ///////////////Get attachement////////////
+              ZOHO.CRM.API.getRelatedRecords({
+                Entity: "Check_In_Information",
+                RecordID: listOfRecords.data[index].id,
+                RelatedList: "	Attachments", page: 1, per_page: 200
+              }).then(function (Attachment) {
+                console.log("Attachement", Attachment.data);
+                for (let i = 0; i < Attachment.data.length; i++) {
+                  console.log(Attachment.data[i].File_Name);
+                  ////////////////
+                  const container = document.getElementById("container_" + index);
+
+                  // Loop through the arrays and create anchor tags dynamically
+                  // for (let i = 0; i < urls.length; i++) {
+                  const url = "https://crm.zoho.com" + Attachment.data[i].$previewUrl;
+                  const text = Attachment.data[i].File_Name;
+                  // Create the anchor tag
+                  const link = document.createElement("a");
+                  // Set the href attribute
+                  link.href = url;
+                  // Set the text content
+                  link.textContent = text;
+                  link.target = "_blank"
+                  // Append the anchor tag to the container
+                  container.appendChild(link);
+                  // Add a line break if you want
+                  container.appendChild(document.createElement("br"));
+                  // }
+
+                  //////////
+                  // attachFile.push({
+                  //   fileName: Attachment.data[i].File_Name,
+                  //   FileUrl: Attachment.data[i].$previewUrl
+
+                  // });
+                }
+              });
+              // console.log("Files Data", attachFile);
+
+              ///////////////////////End Attachment/////////////////
+
+
+              /////////////
+              container = "container_" + index;
+              notesId = "notes_" + index;
+              statusId = "status_" + index;
+              attachId = "Attach_" + index;
+              attachmentInputId = "attachmentInputId_" + index;
+
+              var date = new Date(contacts.Date_of_Bookings);
+              console.log(date);
+              var bookings_dates = date.toISOString().split('T')[0];
+              // console.log(formattedDate);
+              var date1 = new Date(contacts.Date_of_Activity);
+              console.log(date1);
+              var activity_dates = date.toISOString().split('T')[0];
+              // console.log(formattedDate);
+
+              var row = "<tr>";
+              row += "<td><input type='text' value='" + bookings_dates + "' id='booking_date' disabled></td>";
+              row += "<td><input type='text' value='" + activity_dates + "' id='activity_date' disabled></td>";
+              row += "<td><input type='text' value='" + contacts.activity_name + "' id='activity_name' disabled></td>";
+              row += "<td><input type='text'  value='" + contacts.Participant_Name.name + "'   id='participant_name' disabled></td>";
+              row += "<td><input type='text' value='" + contacts.Seller + "' id='Seller' Disabled></td>";
+              row += "<td><input type='number' value='" + contacts.Qty + "' id='Qty' Disabled></td>";
+              row += "<td><input type='number' value='" + contacts.Amount_Paid + "' id='Amount_paid' Disabled></td>";
+              row += "<td><input type='text' value='" + contacts.Last_4 + "' id='Last_4' Disabled></td>";
+              row += "<td><input type='text'  value='" + contacts.weaver_Status + "' id='weaver_status'disabled></td>";
+              row += "<td><input type='text' value='" + contacts.Book_Class + "' id='Book_Class' disabled></td>";
+              row += "<td><input type='text' value='" + contacts.Check_In_Notes + "' id='" + notesId + "' ></td>";
+              row += "<td><input type='text' value='" + contacts.Status + "' id ='" + statusId + "' list='statusList'><datalist id='statusList' ><option value='Default'></option><option value='No Show'></option><option value='Didn't want to pay'></option><option value='Completed'></option><option value='Rescheduled'></option><option value='Weather issue'value='Other'></option></datalist></td>";
+              row += "<td><input type='file' id='" + attachmentInputId + "' multiple></td>";
+              row += "<td><div id='" + container + "'></div></td>";
+              // row += "<td><input type='file' id='"+attachmentInputId+"' multiple> <div id='attachmentList'></div></td>";
+              // row += "<td><input type='hidden' value='" + contacts.Name + "' id ='conId' disabled></td>";
+              // row += "<td><input type='hidden' value='" + contacts.Name + "' id='contName' disabled ></td>";
+              row += "</tr>";
+              tableBody.innerHTML += row;
+            });
+          }
+          window.onload = populateTable;
+          ////////////////////second Table//////////////////
+          ZOHO.CRM.API.getRelatedRecords({ Entity: "Contacts", RecordID: rec_id, RelatedList: "Related_Contact1", page: 1, per_page: 200 }).then(function (listOfRecords) {
+            console.log("function call");
+            console.log("data2=====>", listOfRecords.data);
+            console.log(listOfRecords.data.length);
+            for (let index = 0; index < listOfRecords.data.length; index++) {
+              console.log("data3=====>", listOfRecords.data[index]);
+              console.log("qty=====>", listOfRecords.data[index].Qty);
+              var ticId = listOfRecords.data[index].id;
+              TicketId.push(listOfRecords.data[index].id);
+              var detectQty = 0;
+              for (let x = 0; x < ticketRelId.length; x++) {
+                if (ticId == ticketRelId[x]) {
+                  detectQty = detectQty + 1;
+                }
+              }
+              console.log("detectQty", detectQty);
+              console.log(TicketId);
+              if (detectQty != ticId) {
+                for (let innerIndex = detectQty; innerIndex < listOfRecords.data[index].Qty; innerIndex++) {
+                  console.log("qty1=====>", innerIndex);
+                  contacts1.push({
+                    date: listOfRecords.data[index].Date_of_Activity,
+                    bookingRef: listOfRecords.data[index].Activity_Booking_Ref,
+                    name: listOfRecords.data[index].Name,
+                    activity: listOfRecords.data[index].Activity,
+                    note: listOfRecords.data[index].CRM_Notes,
+                    status: listOfRecords.data[index].Check_In_Status,
+                    Id: listOfRecords.data[index].id,
+                    Seller: listOfRecords.data[index].Seller,
+                    Qty: listOfRecords.data[index].Qty,
+                    Amount_Paid: listOfRecords.data[index].Amount_Paid,
+                    Last_4: listOfRecords.data[index].Last_4
+                  });
+                }
+              }
+            }
+            console.log("final Data", contacts1);
+            populateTable1();
+          });
+          // });
+          // ZOHO.embeddedApp.init();
+          function populateTable1() {
+            var tableBody = document.getElementById("tableBody1");
+            tableBody.innerHTML = ""; // Clear previous data
+            console.log(contacts1);
+            console.log(contacts1.length);
+            contacts1.forEach(function (contacts1, index) {
+              partId = "participant_" + index;
+              weaverId = "weaver_" + index;
+              classId = "class_" + index;
+              notesId = "notes_" + index;
+              statusId = "status_" + index;
+              conId = "conId_" + index;
+              contName = "contName_" + index;
+              Date_of_Bookings = "Date_of_Bookings_" + index;
+              Date_of_Activity = "Date_of_Activity_" + index;
+              activity_name = "activity_name_" + index;
+              Seller = "Seller_" + index;
+              Qty = "Qty_" + index;
+              Amount_paid = "Amount_paid_" + index;
+              Last_4 = "Last_4_" + index;
+              attachmentInputId = "attachmentInputId_" + index;
+              console.log(partId);
+              if (contacts1.note == null) {
+                note_s = "";
+              }
+              else {
+                note_s = contacts1.note;
+              }
+              if (contacts1.status == null) {
+                contact_s = "";
+              }
+              else {
+                contact_s = contacts.status;
+              }
+              var row = "<tr>";
+              row += "<td><input type='text' value='" + contacts1.date + "' id ='" + Date_of_Bookings + "' disabled></td>";
+              row += "<td><input type='text' value='" + contacts1.date + "' id ='" + Date_of_Activity + "' disabled></td>";
+              row += "<td><input type='text' value='" + contacts1.activity + "'id='" + activity_name + "'  disabled></td>";
+              row += "<td><input type='text'  id='" + partId + "' oninput='OnInput(this)' onchange='onSelectChange()' list='Select'><datalist id='Select' ></datalist></td>";
+              row += "<td><input type='text' value='" + contacts1.Seller + "' id='" + Seller + "' ></td>";
+              row += "<td><input type='number' value='" + contacts1.Qty + "' id='" + Qty + "' ></td>";
+              row += "<td><input type='number' value='" + contacts1.Amount_Paid + "' id='" + Amount_paid + "' ></td>";
+              row += "<td><input type='text' value='" + contacts1.Last_4 + "' id='" + Last_4 + "' ></td>";
+              row += "<td><input type='text'  id='" + weaverId + "'></td>";
+              row += "<td><input type='text' id='" + classId + "' list='Select1'><datalist id='Select1' ><option value='Adult'></option><option value='Minor'></option></datalist></td>";
+              row += "<td><input type='text' value='" + note_s + "' id='" + notesId + "' ></td>";
+              row += "<td><input type='text' value='" + contact_s + "' id ='" + statusId + "' list='statusList'><datalist id='statusList'><option value='Default'></option><option value='No Show'></option><option value='Didn't want to pay'></option><option value='Completed'></option><option value='Rescheduled'></option><option value='Weather issue'value='Other'></option></datalist></td>";
+              row += "<td><input type='file' id='" + attachmentInputId + "' multiple></td>";
+              row += "<td><input type='hidden' value='" + contacts1.Id + "' id ='" + conId + "' disabled></td>";
+              row += "<td><input type='hidden' value='" + contacts1.name + "' id='" + contName + "' disabled ></td>";
+              row += "</tr>";
+              tableBody.innerHTML += row;
+            });
+          }
+          window.onload = populateTable1;
+
+
+          ///////*************************************/////////////
+
+        }
+        else {
+          document.getElementById("updatebtn").style.display = 'none';
+          console.log("Empty Data");
+          // ZOHO.embeddedApp.on("PageLoad", function (data) {
+          //   ZOHO.CRM.UI.Resize({ height: "700", width: "1600" })
+          //console.log("data=====>",data.EntityId[0]);
+          // rec_id = data.EntityId[0]
+          ZOHO.CRM.API.getRelatedRecords({ Entity: "Contacts", RecordID: rec_id, RelatedList: "Related_Contact1", page: 1, per_page: 200 }).then(function (listOfRecords) {
+            console.log("function call");
+            console.log("data2=====>", listOfRecords.data);
+            console.log(listOfRecords.data.length);
+            for (let index = 0; index < listOfRecords.data.length; index++) {
+              console.log("data3=====>", listOfRecords.data[index]);
+              console.log("qty=====>", listOfRecords.data[index].Qty);
+              TicketId.push(listOfRecords.data[index].id);
+              console.log(TicketId);
+              for (let innerIndex = 0; innerIndex < listOfRecords.data[index].Qty; innerIndex++) {
+                console.log("qty1=====>", innerIndex);
+                contacts.push({
+                  date: listOfRecords.data[index].Date_of_Activity,
+                  bookingRef: listOfRecords.data[index].Activity_Booking_Ref,
+                  name: listOfRecords.data[index].Name,
+                  activity: listOfRecords.data[index].Activity,
+                  note: listOfRecords.data[index].CRM_Notes,
+                  status: listOfRecords.data[index].Check_In_Status,
+                  Id: listOfRecords.data[index].id,
+                  Seller: listOfRecords.data[index].Seller,
+                  Qty: listOfRecords.data[index].Qty,
+                  Amount_Paid: listOfRecords.data[index].Amount_Paid,
+                  Last_4: listOfRecords.data[index].Last_4
+                });
+              }
+            }
+            console.log("final Data", contacts);
+            populateTable();
+          });
+          // });
+          // ZOHO.embeddedApp.init();
+          function populateTable() {
+            var tableBody = document.getElementById("tableBody");
+            tableBody.innerHTML = ""; // Clear previous data
+            console.log(contacts);
+            console.log(contacts.length);
+            contacts.forEach(function (contacts, index) {
+              partId = "participant_" + index;
+              weaverId = "weaver_" + index;
+              classId = "class_" + index;
+              notesId = "notes_" + index;
+              statusId = "status_" + index;
+              conId = "conId_" + index;
+              contName = "contName_" + index;
+              Date_of_Bookings = "Date_of_Bookings_" + index;
+              Date_of_Activity = "Date_of_Activity_" + index;
+              activity_name = "activity_name_" + index;
+              Seller = "Seller_" + index;
+              Qty = "Qty_" + index;
+              Amount_paid = "Amount_paid_" + index;
+              Last_4 = "Last_4_" + index;
+              attachmentInputId = "attachmentInputId_" + index;
+              console.log(partId);
+              if (contacts.note == null) {
+                note_s = "";
+              }
+              else {
+                note_s = contacts.note;
+              }
+              if (contacts.status == null) {
+                contact_s = "";
+              }
+              else {
+                contact_s = contacts.status;
+              }
+              var row = "<tr>";
+              row += "<td><input type='text' value='" + contacts.date + "' id ='" + Date_of_Bookings + "' disabled></td>";
+              row += "<td><input type='text' value='" + contacts.date + "' id ='" + Date_of_Activity + "' disabled></td>";
+              row += "<td><input type='text' value='" + contacts.activity + "'id='" + activity_name + "'  disabled></td>";
+              row += "<td><input type='text'  id='" + partId + "' oninput='OnInput(this)' onchange='onSelectChange()' list='Select'><datalist id='Select' ></datalist></td>";
+              row += "<td><input type='text' value='" + contacts.Seller + "' id='" + Seller + "' ></td>";
+              row += "<td><input type='number' value='" + contacts.Qty + "' id='" + Qty + "' ></td>";
+              row += "<td><input type='number' value='" + contacts.Amount_Paid + "' id='" + Amount_paid + "' ></td>";
+              row += "<td><input type='text' value='" + contacts.Last_4 + "' id='" + Last_4 + "' ></td>";
+              row += "<td><input type='text'  id='" + weaverId + "'></td>";
+              row += "<td><input type='text' id='" + classId + "' list='Select1'><datalist id='Select1' ><option value='Adult'></option><option value='Minor'></option></datalist></td>";
+              row += "<td><input type='text' value='" + note_s + "' id='" + notesId + "' ></td>";
+              row += "<td><input type='text' value='" + contact_s + "' id ='" + statusId + "' list='statusList'><datalist id='statusList' ><option value='Default'></option><option value='No Show'></option><option value='Didn't want to pay'></option><option value='Completed'></option><option value='Rescheduled'></option><option value='Weather issue'value='Other'></option></datalist></td>";
+              row += "<td><input type='file' id='" + attachmentInputId + "' multiple> <div id='attachmentList'></div></td>";
+              row += "<td><input type='hidden' value='" + contacts.Id + "' id ='" + conId + "' disabled></td>";
+              row += "<td><input type='hidden' value='" + contacts.name + "' id='" + contName + "' disabled ></td>";
+              row += "</tr>";
+              tableBody.innerHTML += row;
+            });
+          }
+          window.onload = populateTable;
+          var listData;
+          var WeaverOption;
+          var option;
+          ////////////FOR CONTACT LOOKUP/////////////
+          // function OnInput(input) {
+          //   var text = input.value;
+          //   console.log("Input value: " + text);
+          //   console.log(text.length);
+          //   if (text.length > 3) {
+          //     ZOHO.CRM.API.searchRecord({ Entity: "Contacts", Type: "criteria", Query: "First_Name:equals:" + text + "" })
+          //       .then(function (data) {
+          //         console.log("search result =", data.data);
+          //         results = data.data;
+          //         listData = results;
+          //         ///////////////////
+          //         select = document.getElementById("Select");
+          //         for (let i = 0; i < results.length; i++) {
+          //           console.log("id =", results[i].id);
+          //           console.log("name =", results[i].Full_Name);
+          //           option = document.createElement('option');
+          //           option.value = results[i].Full_Name;
+          //           option.setAttribute('data-info', results[i].id);
+          //           select.appendChild(option);
+          //         }
+          //       })
+          //   }
+          // }
+
+
+          //////////////update records///////////////////////
+
+          // function Save() {
+          //   var notes = [];
+          //   var status = [];
+          //   var Id = [];
+          //   var participant = [];
+          //   const input1 = document.querySelectorAll('#status');
+          //   const input2 = document.querySelectorAll('#Id');
+          //   const inputs = document.querySelectorAll('#notes');
+          //   const purchaseId = document.querySelectorAll('#participant');
+          //   inputs.forEach((input, index) => {
+          //     console.log(input.value);
+          //     notes.push(input.value);
+          //   })
+          //   input1.forEach((input, index) => {
+          //     console.log(input.value);
+          //     status.push(input.value);
+          //   })
+          //   input2.forEach((input, index) => {
+          //     console.log(input.value);
+          //     Id.push(input.value);
+          //   })
+          //   purchaseId.forEach((input, index) => {
+          //     console.log("Participant", input.innerHTML);
+          //     participant.push(input.getAttribute('data-info'));
+          //   })
+          //   for (var i = 0; i < notes.length; i++) {
+
+          //     var recordData = {
+          //       "Book_Class": "Adult",
+          //       "Name": "test by suraj",
+          //       "Check_In_Notes": notes[i],
+          //       "Status": status[i],
+          //       "Participant_Name": participant[i],
+          //       "Ticket": Id[i]
+          //     }
+          //     ZOHO.CRM.API.insertRecord({ Entity: "Check_In_Information", APIData: recordData, Trigger: ["workflow"] }).then(function (data) {
+          //       console.log(data);
+          //       ZOHO.CRM.UI.Popup.close()
+          //     });
+          //   }
+          // }
+
+        }
+      })
+    })
+
+    ZOHO.embeddedApp.init();
+
+    /////////////////////Oninput change//////////////////
+    function OnInput(input) {
+      /////////////
+      var text = input.value;
+      console.log("Input value: " + text);
+      console.log(text.length);
+      if (text.length > 3) {
+        ZOHO.CRM.API.searchRecord({ Entity: "Contacts", Type: "criteria", Query: "((First_Name:equals:" + text + ")or(Last_Name:equals:" + text + "))" })
+          .then(function (data) {
+            console.log("search result =", data.data);
+            results = data.data;
+            listData = results;
+            ///////////////////
+            var select = document.getElementById("Select");
+            select.innerHTML = ''; // Clear existing options
+            for (let i = 0; i < results.length; i++) {
+              console.log("id =", results[i].id);
+              console.log("name =", results[i].Full_Name);
+              var option = document.createElement('option');
+              option.value = results[i].Full_Name;
+              option.setAttribute('data-info', results[i].id);
+              select.appendChild(option);
+            }
+          });
+      }
+    }
+    function onSelectChange() {
+      console.log("Tablebody", document.getElementById("tableBody"));
+      var rows = tableBody.getElementsByTagName("tr");
+      // Create an array to store the row indices
+      // Loop through each row and push its index to the array
+      for (var i = 0; i < rows.length; i++) {
+
+        console.log("ids count", i)
+        var selectedOption = document.getElementById("participant_" + i).value;
+        var dataInfo = document.querySelector('option[value="' + selectedOption + '"]').getAttribute('data-info');
+        // Update the value and data-info attribute of the participant input element
+        document.getElementById('participant_' + i).setAttribute('data-info', dataInfo);
+        // console.log("DATA", document.getElementById('participant_' + i).value);
+        // console.log("Info", document.getElementById('participant_' + i).getAttribute('data-info'));
+        idParticipant = document.getElementById('participant_' + i).getAttribute('data-info');
+        ////////////Search ID///////////
+        ZOHO.CRM.API.getRelatedRecords({ Entity: "Contacts", RecordID: idParticipant, RelatedList: "Waivers", page: 1, per_page: 200 }).then(function (listOfRecords) {
+          // console.log("function call");
+          // console.log("data2=====>", listOfRecords.data);
+          // console.log(listOfRecords.data.length);
+          for (let index = 0; index < listOfRecords.data.length; index++) {
+            // console.log("data3=====>", listOfRecords.data[index]);
+            // console.log("Status=====>", listOfRecords.data[index].Status);
+            weaverStatus = listOfRecords.data[index].Status;
+          }
+          i = i - 1;
+          console.log("Id in weaver", i);
+          document.getElementById('weaver_' + i).value = weaverStatus;
+          document.getElementById('weaver_' + i).disabled = true;
+          i = i + 1;
+        })
+        ZOHO.CRM.API.getRecord({ Entity: "Contacts", RecordID: idParticipant })
+          .then(function (listOfRecords1) {
+            // console.log(data)
+            for (let index = 0; index < listOfRecords1.data.length; index++) {
+              // console.log("data3=====>", listOfRecords.data[index]);
+              // console.log("Date Of Birth=====>", listOfRecords1.data[index].Date_of_Birth);
+
+              function calculateAge(birthdate) {
+                var today = new Date();
+                var birthDate = new Date(birthdate);
+                var age = today.getFullYear() - birthDate.getFullYear();
+                var month = today.getMonth() - birthDate.getMonth();
+                if (month < 0 || (month === 0 && today.getDate() < birthDate.getDate())) {
+                  age--;
+                }
+                return age;
+              }
+
+              // Example usage:
+              var birthdate = listOfRecords1.data[index].Date_of_Birth; // Format: "YYYY-MM-DD"
+              var age = calculateAge(birthdate);
+              console.log("age", age); // Output: The calculated age
+            }
+
+            if (age > 18) {
+              i = i - 1;
+              document.getElementById('class_' + i).value = "Adult";
+              document.getElementById('class_' + i).disabled = true;
+              i = i + 1;
+            }
+            else {
+              i = i - 1;
+              document.getElementById('class_' + i).value = "Minor";
+              document.getElementById('class_' + i).disabled = true;
+              i = i + 1;
+            }
+          })
+
+        //////////////////
+      }
+    }
+    /////////////////////END OF NEW CODE////////////
+    function Save() {
+      var checkinCreateId = "";
+      // var checkinCreateId;
+      console.log("Tablebody", document.getElementById("tableBody"));
+      var rows = tableBody.getElementsByTagName("tr");
+      // Create an array to store the row indices
+      // Loop through each row and push its index to the array
+      for (var i = 0; i < rows.length; i++) {
+        var participant = document.getElementById("participant_" + i).getAttribute('data-info');
+        var weaver = document.getElementById("weaver_" + i).value;
+        var Class = document.getElementById("class_" + i).value;
+        var Notes = document.getElementById("notes_" + i).value;
+        var Status = document.getElementById("status_" + i).value;
+        var contName = document.getElementById("contName_" + i).value;
+        var conId = document.getElementById("conId_" + i).value;
+        var Date_of_Bookings = document.getElementById("Date_of_Bookings_" + i).value;
+        var Date_of_BookingsValue = `${Date_of_Bookings}T00:00:00Z`;
+        var Date_of_Activity = document.getElementById("Date_of_Activity_" + i).value;
+        var Date_of_ActivityValue = `${Date_of_Activity}T00:00:00Z`;
+        var activity_name = document.getElementById("activity_name_" + i).value;
+        var Seller = document.getElementById("Seller_" + i).value;
+        var Qty = document.getElementById("Qty_" + i).value;
+        var Amount_paid = document.getElementById("Amount_paid_" + i).value;
+        var Last_4 = document.getElementById("Last_4_" + i).value;
+
+
+        // console.log("Files length", files.length);
+        ////////////////////////////////////
+        if (participant != null) {
+          var recordData = {
+            "Book_Class": Class,
+            "Activity_Date": Date_of_ActivityValue,
+            "Activity_Name": activity_name,
+            "Booking_Date": Date_of_BookingsValue,
+            "Seller": Seller,
+            "QTY": Qty,
+            "Amount_Paid": Amount_paid,
+            "Last_4": Last_4,
+            "Name": contName,
+            "Check_In_Notes": Notes,
+            "Status": Status,
+            "Waver_status": weaver,
+            "Purchaser": rec_id,
+            "Participant_Name": participant,
+            "Ticket": conId
+          }
+          console.log(recordData);
+          ZOHO.CRM.API.insertRecord({
+            Entity: "Check_In_Information",
+            APIData: recordData,
+            Trigger: ["workflow"]
+          }).then(function (data) {
+            console.log(data);
+            response = data.data;
+
+          
+              console.log("id of created record", response[0].details.id);
+              checkinCreateId = response[0].details.id
+
+            // attachement(checkinCreateId);
+      
+          var files = document.getElementById("attachmentInputId_" + i).files;
+          console.log("Files length", files.length)
+          
+            for (let k = 0; k < files.length; k++) {
+              console.log("checkInId", checkinCreateId);
+
+              ZOHO.CRM.API.attachFile({
+                Entity: "Check_In_Information",
+                RecordID: checkinCreateId,
+                File: { Name: files[k].name, Content: files[k] }
+              }).then(function (data) {
+                console.log("Attached Files", data);
+              }).catch(function (error) {
+                console.error("Error attaching file", error);
+              });
+            }
+            ZOHO.CRM.UI.Popup.close()
+          });
+          // for (let k = 0; k < files.length; k++) {
+          //   console.log("checkInId",checkinCreateId);
+
+          //   // checkinCreateId.forEach(function(checkinCreateId){
+          //     console.log("checkinId foreach",checkinCreateId[0].id)
+          //   ZOHO.CRM.API.attachFile({
+          //     Entity: "Check_In_Information",
+          //     RecordID: checkinCreateId[0].id,
+          //     File: { Name: files[k].name, Content: files[k] }
+          //   }).then(function (data) {
+          //     console.log("Attached Files", data);
+          //   });
+          // // });
+          // }
+          
+
+        }
+      }
+    }
+    //////////////////update status/////////////
+    function Update() {
+      // Update existing records
+      var checkinCreateId;
+      console.log("Tablebody", document.getElementById("tableBody"));
+      var tableBody = document.getElementById("tableBody");
+      if (tableBody) {
+        var rows = tableBody.getElementsByTagName("tr");
+        for (var i = 0; i < rows.length; i++) {
+          var Notes = document.getElementById("notes_" + i).value;
+          var Status = document.getElementById("status_" + i).value;
+          var checkIn = checkInId[i];
+          console.log("update Data", Notes, Status, checkIn);
+
+          var configdata = {
+            Entity: "Check_In_Information",
+            APIData: {
+              "id": checkIn,
+              "Check_In_Notes": Notes,
+              "Status": Status,
+            },
+          };
+          console.log(configdata);
+          ZOHO.CRM.API.updateRecord(configdata)
+            .then(function (data) {
+              console.log(data);
+            })
+            .catch(function (error) {
+              console.error("Error updating record: ", error);
+            });
+        }
+      } else {
+        console.error("Tablebody not found");
+      }
+
+      // Insert new records
+      console.log("Tablebody1", document.getElementById("tableBody1"));
+      var tableBody1 = document.getElementById("tableBody1");
+      if (tableBody1) {
+        var rows1 = tableBody1.getElementsByTagName("tr");
+        for (var i = 0; i < rows1.length; i++) {
+          var participant = document.getElementById("participant_" + i).getAttribute('data-info');
+          var weaver = document.getElementById("weaver_" + i).value;
+          var Class = document.getElementById("class_" + i).value;
+          var Notes = document.getElementById("notes_" + i).value;
+          var Status = document.getElementById("status_" + i).value;
+          var contName = document.getElementById("contName_" + i).value;
+          var conId = document.getElementById("conId_" + i).value;
+          var Date_of_Bookings = document.getElementById("Date_of_Bookings_" + i).value;
+          var Date_of_BookingsValue = `${Date_of_Bookings}T00:00:00Z`;
+          var Date_of_Activity = document.getElementById("Date_of_Activity_" + i).value;
+          var Date_of_ActivityValue = `${Date_of_Activity}T00:00:00Z`;
+          var activity_name = document.getElementById("activity_name_" + i).value;
+          var Seller = document.getElementById("Seller_" + i).value;
+          var Qty = document.getElementById("Qty_" + i).value;
+          var Amount_paid = document.getElementById("Amount_paid_" + i).value;
+          var Last_4 = document.getElementById("Last_4_" + i).value;
+
+
+          if (participant != null) {
+
+            // console.log(recordData);
+            // ZOHO.CRM.API.insertRecord({ Entity: "Check_In_Information", APIData: recordData, Trigger: ["workflow"] })
+            //   .then(function (response) {
+            //     console.log(response);
+            //     //////////For attachment////////////
+            //     console.log("checkinCreateId = ", response.data[0].details.id);
+
+            //     for (var k = 0; k < files.length; k++) {
+            //       ZOHO.CRM.API.attachFile({
+            //         Entity: "Check_In_Information",
+            //         RecordID: response.data[0].details.id,
+            //         File: { Name: files[k].name, Content: files[k] }
+            //       }).then(function (data1) {
+            //         console.log(data1);
+            //       });
+            //     }
+
+            //   })
+            //   .catch(function (error) {
+            //     console.error("Error inserting record: ", error);
+            //   });
+            ////////////using try cache//////
+            async function insertRecordAndAttachFiles(recordData, files) {
+              try {
+                // Insert the record
+                const response = await ZOHO.CRM.API.insertRecord({
+                  Entity: "Check_In_Information",
+                  APIData: recordData,
+                  Trigger: ["workflow"]
+                });
+
+                console.log(response);
+
+                const checkinCreateId = response.data[0].details.id;
+                console.log("checkinCreateId = ", checkinCreateId);
+
+                // Attach files
+                for (let k = 0; k < files.length; k++) {
+                  try {
+                    const attachmentResponse = await ZOHO.CRM.API.attachFile({
+                      Entity: "Check_In_Information",
+                      RecordID: checkinCreateId,
+                      File: { Name: files[k].name, Content: files[k] }
+                    });
+                    console.log(attachmentResponse);
+                  } catch (attachmentError) {
+                    console.error(`Error attaching file ${files[k].name}: `, attachmentError);
+                  }
+                }
+              } catch (error) {
+                console.error("Error inserting record: ", error);
+              }
+            }
+
+            // Example usage
+            const recordData = {
+              "Book_Class": Class,
+              "Activity_Date": Date_of_ActivityValue,
+              "Activity_Name": activity_name,
+              "Booking_Date": Date_of_BookingsValue,
+              "Seller": Seller,
+              "QTY": Qty,
+              "Amount_Paid": Amount_paid,
+              "Last_4": Last_4,
+              "Name": contName,
+              "Check_In_Notes": Notes,
+              "Status": Status,
+              "Waver_status": weaver,
+              "Purchaser": rec_id,
+              "Participant_Name": participant,
+              "Ticket": conId,
+            };
+
+            const files = document.getElementById("attachmentInputId_" + i).files;
+            console.log("Files length", files.length);
+            insertRecordAndAttachFiles(recordData, files);
+
+          }
+        }
+      }
+      else {
+        console.error("Tablebody1 not found");
+      }
+
+      // Close the popup
+      ZOHO.CRM.UI.Popup.close();
+    }
+    ////////////////////
+    function Close() {
+      ZOHO.CRM.UI.Popup.close()
+    }
+  </script>
+</head>
+
+<body style="font-size: 10px;">
+  <!-- <div class="flex_div" style="display: flex; flex-wrap: wrap; gap: 5px;"> -->
+  <div style="font-size: 14px;padding: 5px;">
+    <!-- <h1>Tickets Details</h1> -->
+    <hr>
+    <table class="table" style="font-size: small;">
+      <thead class="thead-dark">
+        <tr>
+          <th>Booking Date</th>
+          <th>Activity Date</th>
+          <th>Activity Name</th>
+          <!-- <th>Purchaser</th> -->
+          <th>Participant Name</th>
+          <th>Seller</th>
+          <th>QTY</th>
+          <th>Amount Paid</th>
+          <th>Last 4</th>
+          <th>Waiver</th>
+          <th>Book Class</th>
+          <th>Notes</th>
+          <th>Status</th>
+          <th>Attachment</th>
+          <!-- Add more columns as needed -->
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <!-- Data will be dynamically added here -->
+      </tbody>
+      <tbody id="tableBody1">
+        <!-- Data will be dynamically added here -->
+      </tbody>
+    </table>
+  </div>
+  <div style="padding: 10px; position:fixed;margin: auto;">
+    <button onclick="Save()" type="button" class="btn btn-success" id="savebtn">Save</button>
+    <button onclick="Update()" type="button" class="btn btn-success" id="updatebtn">Update</button>
+    <button onclick="Close()" type="button" class="btn btn-danger">Cancel</button>
+    <!-- <button onclick="updateWeaver()" type="button" class="btn btn-danger" >Populate Data</button> -->
+  </div>
+</body>
+
+</html>
